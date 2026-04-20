@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cliente Web - Clima</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .tarjeta { border: 1px solid #ccc; padding: 20px; border-radius: 8px; max-width: 300px; margin-top: 20px; }
+        input, button { padding: 8px; margin-right: 5px; }
+    </style>
+</head>
+<body>
+    <h2>Consulta del Clima (Sistemas Distribuidos)</h2>
+    
+    <label>Escribe una ciudad: </label>
+    <input type="text" id="inputCiudad" value="Monterrey">
+    <button onclick="pedirClima()">Consultar Clima</button>
+    
+    <div id="resultado" class="tarjeta">
+        <p>Esperando consulta...</p>
+    </div>
+
+    <script>
+        function pedirClima() {
+            // Leemos lo que escribiste en la cajita de texto
+            const ciudad = document.getElementById('inputCiudad').value;
+            // Armamos la URL para pegarle a tu servidor Flask local
+            const url = `http://localhost:5000/clima?ciudad=${ciudad}`;
+            
+            document.getElementById('resultado').innerHTML = "<p>Cargando datos...</p>";
+
+            // fetch es la herramienta de Javascript para hacer peticiones HTTP (como el requests de Python)
+            fetch(url)
+                .then(respuesta => respuesta.json())
+                .then(datos => {
+                    if(datos.error) {
+                        document.getElementById('resultado').innerHTML = `<p style="color:red;">Error: ${datos.error}</p>`;
+                    } else {
+                        // Si todo sale bien, pintamos los datos en la pantalla
+                        document.getElementById('resultado').innerHTML = `
+                            <h3 style="color: #0056b3;">${datos.ciudad}</h3>
+                            <p><b>Temperatura:</b> ${datos.temperatura_celsius} °C</p>
+                            <p><b>Condición:</b> ${datos.condicion}</p>
+                            <p><b>Humedad:</b> ${datos.humedad_porcentaje}%</p>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('resultado').innerHTML = `<p style="color:red;">Error al contactar al servidor Flask. ¿Está encendido?</p>`;
+                });
+        }
+    </script>
+</body>
+</html>
